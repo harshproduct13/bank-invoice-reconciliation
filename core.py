@@ -47,8 +47,16 @@ def parse_bank_pdf_and_insert_all(pdf_path):
         amt = parsed.get("amount") or 0.0
         if parsed.get("type","").lower() != "debit" and "debit" not in ln.lower() and "dr" not in ln.lower(): 
             continue
-        c.execute("INSERT INTO transactions(date,description,amount,type,need_invoice,has_invoice) VALUES(?,?,?,?, 'Yes','Unmatched')",
-                  (parsed.get("date",""), parsed.get("description",ln), amt, "Debit"))
+        c.execute("""
+    INSERT INTO transactions(date, description, amount, type, need_invoice, has_invoice)
+    VALUES (?, ?, ?, ?, ?, ?)
+""", (
+    parsed.get("date", ""),
+    parsed.get("description", ln),
+    amt,
+    "Debit",
+    "Yes",
+    "Unmatched"))
         inserted += 1
     conn.commit(); conn.close()
     return inserted
